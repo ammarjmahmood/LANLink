@@ -27,6 +27,8 @@
     font-family: Helvetica, sans-serif;
   }
   
+  .w3-sidebar {width: 220px;background: #222;}
+
   .msger {
     display: flex;
     flex-flow: column wrap;
