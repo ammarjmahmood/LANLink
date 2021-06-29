@@ -13,7 +13,7 @@ const BOT_MSGS = [
   "I also used a bunch of images off the web, hopefully they are not copywrited"
 ];
 
-const BOT_IMG = "https://img-premium.flaticon.com/png/128/4140/premium/4140048.png?token=exp=1624979768~hmac=b220041cd67d48a11ec19eff1c6be1e2";
+const BOT_IMG = "https://image.flaticon.com/icons/png/512/236/236831.png";
 const PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
 const BOT_NAME = "Tony Stark";
 const PERSON_NAME = "Ammar & Junaid";
