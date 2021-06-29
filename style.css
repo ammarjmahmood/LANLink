@@ -1,3 +1,5 @@
+.w3-sidebar {width: 220px;background: #222;}
+
 :root {
     --body-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --msger-bg: #fff;
@@ -27,8 +29,6 @@
     font-family: Helvetica, sans-serif;
   }
   
-  .w3-sidebar {width: 220px;background: #222;}
-
   .msger {
     display: flex;
     flex-flow: column wrap;
