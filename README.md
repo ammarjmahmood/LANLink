@@ -2,15 +2,15 @@
 
 *Connect with anyone on your local network, instantly.*
 
-![LanLink Welcome Screen](Welcomescreenanimation.png)
+<img src="Welcomescreenanimation.png" alt="LanLink Welcome Screen" width="600"/>
 
 ## What is LanLink?
 
-LanLink is a sleek, modern web application that enables real-time communication between users on the same local network. With its intuitive interface, smooth animations, and feature-rich environment, NexusChat transforms local network communication into an engaging experience.
+LanLink is a sleek, modern web application that enables real-time communication between users on the same local network. With its intuitive interface, smooth animations, and feature-rich environment, LanLink transforms local network communication into an engaging experience.
 
 ## ✨ Features
 
-![User Interface](lanscreen-mobile.png)
+<img src="lanscreen-mobile.png" alt="User Interface" width="500"/>
 
 - **Real-time Messaging** - Instantly communicate with anyone on your local network
 - **Dark & Light Mode** - Toggle between themes with your preference saved automatically
@@ -30,7 +30,7 @@ Setting up LanLink is quick and easy:
 4. Share the local network URL with others
 5. Begin chatting!
 
-![Mobile Experience](mobile-view.png)
+<img src="mobile-view.png" alt="Mobile Experience" width="300"/>
 
 ## 🔧 How It Works
 
@@ -45,7 +45,7 @@ When you start the server, it automatically identifies your local IP address and
 
 ## 📱 User Experience
 
-![Dark Mode](darkmode-mobile.png)
+<img src="darkmode-mobile.png" alt="Dark Mode" width="450"/>
 
 The app opens with a stylish welcome animation before prompting users to choose a username. Once connected, users can:
 
@@ -57,7 +57,7 @@ The app opens with a stylish welcome animation before prompting users to choose 
 
 ## 🛠️ Technical Details
 
-NexusChat's architecture consists of three main components:
+LanLink's architecture consists of three main components:
 
 1. **Client-side Application**: Handles UI rendering, user interactions, and Socket.IO client connections
 2. **Express Server**: Serves static files and manages HTTP connections
@@ -87,8 +87,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📸 More Screenshots
 
-![Chat in Action](users-joining.png)
-
-![User List](welcome-choose-Lan-name.png)
+<div style="display: flex; justify-content: space-between;">
+  <img src="users-joining.png" alt="Chat in Action" width="400"/>
+  <img src="welcome-choose-Lan-name.png" alt="User List" width="400"/>
+</div>
 
 ---
