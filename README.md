@@ -2,7 +2,7 @@
 
 *Connect with anyone on your local network, instantly.*
 
-![LanLink Welcome Screen](images/welcome-screen.png)
+![LanLink Welcome Screen](Welcomescreenanimation.png)
 
 ## What is LanLink?
 
@@ -10,7 +10,7 @@ LanLink is a sleek, modern web application that enables real-time communication 
 
 ## ✨ Features
 
-![User Interface](images/main-interface.png)
+![User Interface](lanscreen-mobile.png)
 
 - **Real-time Messaging** - Instantly communicate with anyone on your local network
 - **Dark & Light Mode** - Toggle between themes with your preference saved automatically
@@ -30,7 +30,7 @@ Setting up LanLink is quick and easy:
 4. Share the local network URL with others
 5. Begin chatting!
 
-![Mobile Experience](images/mobile-view.png)
+![Mobile Experience](mobile-view.png)
 
 ## 🔧 How It Works
 
@@ -45,7 +45,7 @@ When you start the server, it automatically identifies your local IP address and
 
 ## 📱 User Experience
 
-![Dark Mode](images/dark-mode.png)
+![Dark Mode](darkmode-mobile.png)
 
 The app opens with a stylish welcome animation before prompting users to choose a username. Once connected, users can:
 
@@ -87,10 +87,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📸 More Screenshots
 
-![Chat in Action](images/chat-in-action.png)
+![Chat in Action](users-joining.png)
 
-![User List](images/user-list.png)
+![User List](welcome-choose-Lan-name.png)
 
 ---
-
-**Developed with ❤️ for seamless local network communication**
