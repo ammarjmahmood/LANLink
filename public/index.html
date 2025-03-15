@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalChat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent: #6c5ce7;
+            --accent-hover: #5649c0;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --online: #00b894;
+        }
+
+        .dark-mode {
+            --bg-primary: #18191a;
+            --bg-secondary: #242526;
+            --text-primary: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --accent: #6c5ce7;
+            --accent-hover: #7d6ff8;
+            --border: #3a3b3c;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-secondary);
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .username {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .status {
+            font-size: 12px;
+            color: var(--online);
+            display: flex;
+            align-items: center;
+        }
+
+        .status::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--online);
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .online-users-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .online-users {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .user-item:hover {
+            background-color: var(--bg-primary);
+        }
+
+        .user-item .avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 14px;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px var(--shadow);
+            overflow: hidden;
+            height: 70vh;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-title {
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.incoming {
+            align-self: flex-start;
+            background-color: var(--bg-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.outgoing {
+            align-self: flex-end;
+            background-color: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message-form {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 24px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            outline: none;
+            font-size: 14px;
+        }
+
+        .message-input:focus {
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .send-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--accent);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .send-button:hover {
+            background-color: var(--accent-hover);
+            transform: scale(1.05);
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: slideOut 1s ease forwards;
+            animation-delay: 2s;
+        }
+
+        @keyframes slideOut {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+
+        .welcome-content {
+            text-align: center;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .login-form {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 900;
+        }
+
+        .login-container {
+            background-color: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px var(--shadow);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .login-button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px var(--shadow);
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .chat-container {
+                height: 60vh;
+            }
+        }
+
+        .server-setup {
+            text-align: center;
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .server-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .code-block {
+            background-color: var(--bg-primary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            font-family: monospace;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background-color: var(--bg-primary);
+            border-radius: 16px;
+            width: fit-content;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .typing-indicator.active {
+            opacity: 1;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-screen">
+        <div class="welcome-content">
+            <div class="welcome-title">LocalChat</div>
+            <p>Connect with anyone on your local network</p>
+        </div>
+    </div>
+
+    <div class="login-form">
+        <div class="login-container">
+            <h2 class="login-title">Join LocalChat</h2>
+            <div class="input-group">
+                <input type="text" id="username-input" class="login-input" placeholder="Choose a username" required>
+            </div>
+            <button id="login-button" class="login-button">Join Chat</button>
+        </div>
+    </div>
+
+    <div class="container" style="display: none;">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">💬</span>
+                <span>LocalChat</span>
+            </div>
+            <div class="controls">
+                <button class="theme-toggle" id="theme-toggle">🌙</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="user-profile">
+                    <div class="avatar" id="user-avatar"></div>
+                    <div class="user-info">
+                        <div class="username" id="current-username">Username</div>
+                        <div class="status">Online</div>
+                    </div>
+                </div>
+                <div class="online-users-title">Online Users</div>
+                <div class="online-users" id="online-users-list">
+                    <!-- Users will be populated here -->
+                </div>
+            </aside>
+
+            <main class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-title">Local Network Chat Room</div>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will appear here -->
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+                <form class="message-form" id="message-form">
+                    <input type="text" class="message-input" id="message-input" placeholder="Type a message..." autocomplete="off">
+                    <button type="submit" class="send-button">➤</button>
+                </form>
+            </main>
+        </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const loginForm = document.querySelector('.login-form');
+            const container = document.querySelector('.container');
+            const usernameInput = document.getElementById('username-input');
+            const loginButton = document.getElementById('login-button');
+            const messageInput = document.getElementById('message-input');
+            const messageForm = document.getElementById('message-form');
+            const chatMessages = document.getElementById('chat-messages');
+            const onlineUsersList = document.getElementById('online-users-list');
+            const currentUsername = document.getElementById('current-username');
+            const userAvatar = document.getElementById('user-avatar');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const notification = document.getElementById('notification');
+            
+            let username = '';
+            let isDarkMode = false;
+            let socket = null;
+            let typingTimeout = null;
+
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                isDarkMode = document.body.classList.contains('dark-mode');
+                themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+                localStorage.setItem('darkMode', isDarkMode);
+            });
+
+            // Check saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+                isDarkMode = true;
+            }
+
+            // Login functionality
+            loginButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                username = usernameInput.value.trim();
+                
+                if (username.length < 3) {
+                    showNotification('Username must be at least 3 characters long');
+                    return;
+                }
+                
+                initializeChat(username);
+            });
+
+            usernameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    loginButton.click();
+                }
+            });
+
+            function initializeChat(username) {
+                // Setup the username display
+                currentUsername.textContent = username;
+                userAvatar.textContent = getInitials(username);
+                
+                // Hide login, show chat
+                loginForm.style.display = 'none';
+                container.style.display = 'flex';
+                
+                // Initialize socket connection
+                // In a real app, you would connect to your server
+                connectToServer(username);
+            }
+
+            function connectToServer(username) {
+                // For demo purposes, we'll simulate the connection
+                // In a real app, you would use something like:
+                // socket = io('http://localhost:3000');
+                
+                try {
+                    // Attempt to connect to a real server if it exists
+                    socket = io();
+                    
+                    socket.on('connect', () => {
+                        console.log('Connected to server');
+                        socket.emit('user-join', username);
+                        
+                        // Add a welcome message
+                        addMessage({
+                            sender: 'System',
+                            text: `Welcome to LocalChat, ${username}!`,
+                            id: 'system',
+                            time: getCurrentTime()
+                        });
+                    });
+                    
+                    socket.on('user-connected', (user) => {
+                        if (user.id !== socket.id) {
+                            addMessage({
+                                sender: 'System',
+                                text: `${user.username} has joined the chat`,
+                                id: 'system',
+                                time: getCurrentTime()
+                            });
+                            showNotification(`${user.username} has joined`);
+                        }
+                    });
+                    
+                    socket.on('users-list', (users) => {
+                        updateUsersList(users);
+                    });
+                    
+                    socket.on('new-message', (message) => {
+                        addMessage(message);
+                        if (message.id !== socket.id) {
+                            showNotification(`New message from ${message.sender}`);
+                        }
+                    });
+                    
+                    socket.on('user-disconnected', (userId) => {
+                        const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+                        if (userElement) {
+                            const username = userElement.querySelector('.username').textContent;
+                            addMessage({
+                                sender: 'System',
+                                text: `${username} has left the chat`,
+                                id: 'system',
+                                time: getCurrentTime()
+                            });
+                        }
+                        document.querySelectorAll(`[data-user-id="${userId}"]`).forEach(el => el.remove());
+                    });
+                    
+                    socket.on('user-typing', (username) => {
+                        typingIndicator.classList.add('active');
+                    });
+                    
+                    socket.on('user-stop-typing', () => {
+                        typingIndicator.classList.remove('active');
+                    });
+                    
+                    socket.on('disconnect', () => {
+                        addMessage({
+                            sender: 'System',
+                            text: 'Disconnected from server. Trying to reconnect...',
+                            id: 'system',
+                            time: getCurrentTime()
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('Failed to connect to server:', error);
+                    
+                    // Fallback to simulated local experience
+                    simulateLocalExperience(username);
+                }
+            }
+            
+            function simulateLocalExperience(username) {
+                // Add welcome message
+                addMessage({
+                    sender: 'System',
+                    text: `Welcome to LocalChat, ${username}! This is a simulation since no server is available.`,
+                    id: 'system',
+                    time: getCurrentTime()
+                });
+                
+                // Add demo users
+                const demoUsers = [
+                    { id: 'user1', username: 'Alex' },
+                    { id: 'user2', username: 'Taylor' }
+                ];
+                
+                updateUsersList([...demoUsers, { id: 'current', username: username }]);
+                
+                // Simulate received messages every few seconds
+                setTimeout(() => {
+                    addMessage({
+                        sender: 'Alex',
+                        text: 'Hi there! Welcome to the chat.',
+                        id: 'user1',
+                        time: getCurrentTime()
+                    });
+                }, 2000);
+                
+                setTimeout(() => {
+                    addMessage({
+                        sender: 'Taylor',
+                        text: 'Hey! How\'s it going?',
+                        id: 'user2',
+                        time: getCurrentTime()
+                    });
+                }, 5000);
+            }
+
+            // Send message functionality
+            messageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                
+                if (message) {
+                    if (socket && socket.connected) {
+                        socket.emit('send-message', message);
+                    } else {
+                        // Simulate sending a message locally
+                        addMessage({
+                            sender: username,
+                            text: message,
+                            id: 'current',
+                            time: getCurrentTime()
+                        });
+                    }
+                    
+                    messageInput.value = '';
+                    if (socket && socket.connected) {
+                        socket.emit('stop-typing');
+                    }
+                }
+            });
+            
+            // Typing indicator functionality
+            messageInput.addEventListener('input', () => {
+                if (socket && socket.connected) {
+                    if (!typingTimeout) {
+                        socket.emit('typing');
+                    }
+                    
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        socket.emit('stop-typing');
+                        typingTimeout = null;
+                    }, 1000);
+                }
+            });
+
+            // Helper functions
+            function addMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                
+                if (message.id === 'system') {
+                    messageElement.style.alignSelf = 'center';
+                    messageElement.style.backgroundColor = '#f1c40f20';
+                    messageElement.style.color = isDarkMode ? '#f1c40f' : '#7d6608';
+                    messageElement.style.fontSize = '12px';
+                    messageElement.innerHTML = `
+                        <div>${message.text}</div>
+                        <div class="message-time">${message.time}</div>
+                    `;
+                } else if (message.id === socket?.id || message.id === 'current') {
+                    messageElement.classList.add('outgoing');
+                    messageElement.innerHTML = `
+                        <div>${message.text}</div>
+                        <div class="message-time">${message.time}</div>
+                    `;
+                } else {
+                    messageElement.classList.add('incoming');
+                    messageElement.innerHTML = `
+                        <div class="message-sender">${message.sender}</div>
+                        <div>${message.text}</div>
+                        <div class="message-time">${message.time}</div>
+                    `;
+                }
+                
+                // Insert before typing indicator
+                chatMessages.insertBefore(messageElement, typingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function updateUsersList(users) {
+                onlineUsersList.innerHTML = '';
+                
+                users.forEach(user => {
+                    if (user.id === socket?.id || user.id === 'current') return;
+                    
+                    const userElement = document.createElement('div');
+                    userElement.classList.add('user-item');
+                    userElement.setAttribute('data-user-id', user.id);
+                    userElement.innerHTML = `
+                        <div class="avatar">${getInitials(user.username)}</div>
+                        <div class="username">${user.username}</div>
+                    `;
+                    onlineUsersList.appendChild(userElement);
+                });
+            }
+
+            function getInitials(name) {
+                return name.split(' ')
+                    .map(word => word.charAt(0).toUpperCase())
+                    .join('')
+                    .substring(0, 2);
+            }
+
+            function getCurrentTime() {
+                return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
