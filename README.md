@@ -2,7 +2,7 @@
 
 *Connect with anyone on your local network, instantly.*
 
-<img src="Welcomescreenanimation.png" alt="LanLink Welcome Screen" width="600"/>
+<img src="Welcomescreenanimation.png" alt="LanLink Welcome Screen" width="300"/>
 
 ## What is LanLink?
 
