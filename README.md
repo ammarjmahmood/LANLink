@@ -45,7 +45,7 @@ When you start the server, it automatically identifies your local IP address and
 
 ## 📱 User Experience
 
-<img src="darkmode-mobile.png" alt="Dark Mode" width="450"/>
+<img src="darkmode-mobile.png" alt="Dark Mode" width="300"/>
 
 The app opens with a stylish welcome animation before prompting users to choose a username. Once connected, users can:
 
