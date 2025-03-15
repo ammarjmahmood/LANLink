@@ -2,7 +2,7 @@
 
 *Connect with anyone on your local network, instantly.*
 
-<img src="Welcomescreenanimation.png" alt="LanLink Welcome Screen" width="300"/>
+<img src="Welcomescreenanimation.png" alt="LanLink Welcome Screen" width="600"/>
 
 ## What is LanLink?
 
@@ -10,7 +10,7 @@ LanLink is a sleek, modern web application that enables real-time communication 
 
 ## ✨ Features
 
-<img src="lanscreen-mobile.png" alt="User Interface" width="500"/>
+<img src="lanscreen-mobile.png" alt="User Interface" width="300"/>
 
 - **Real-time Messaging** - Instantly communicate with anyone on your local network
 - **Dark & Light Mode** - Toggle between themes with your preference saved automatically
